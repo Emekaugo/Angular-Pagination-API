@@ -49,16 +49,18 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ApiPaginationComponent } from './api-pagination/api-pagination.component';
 import { ApiService } from './api.service';
 import { RandomUsersTableComponent } from './random-users-table/random-users-table.component';
-import { OrderByPipe } from './pipe/order-by.pipe';
-import { SortDirective } from './directives/sort.directive';
+
+import { CreateRandomUserComponent } from './create-random-user/create-random-user.component';
+import { EditRandomUserComponent } from './edit-random-user/edit-random-user.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ApiPaginationComponent,
     RandomUsersTableComponent,
-    OrderByPipe,
-    SortDirective,
+
+    CreateRandomUserComponent,
+    EditRandomUserComponent,
   ],
   imports: [
     BrowserModule,
@@ -99,6 +101,7 @@ import { SortDirective } from './directives/sort.directive';
     MatTooltipModule,
     MatStepperModule,
     MatPaginatorModule,
+    MatFormFieldModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

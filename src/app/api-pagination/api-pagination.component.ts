@@ -8,14 +8,13 @@ import { ApiService } from '../api.service';
 import { merge, Observable, of as observableOf, of, Subscription } from 'rxjs';
 import { catchError, map, startWith, switchMap, tap } from 'rxjs/operators';
 import { DataSource } from '@angular/cdk/table';
-import { OrderByPipe } from '../pipe/order-by.pipe';
+
 import { Sort } from '@angular/material/sort';
 
 @Component({
   selector: 'app-api-pagination',
   templateUrl: './api-pagination.component.html',
   styleUrls: ['./api-pagination.component.scss'],
-  providers: [OrderByPipe],
 })
 export class ApiPaginationComponent implements OnInit {
   private subs = new Subscription();
