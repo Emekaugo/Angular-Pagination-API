@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, pluck, retry } from 'rxjs/operators';
-import { Api } from './api';
+import { Api, Api2 } from './api';
 
 @Injectable({
   providedIn: 'root',
@@ -12,9 +12,9 @@ export class ApiService {
   url = 'https://jsonplaceholder.typicode.com/posts';
 
   constructor(private http: HttpClient) {}
-  getData() {
-    return this.http.get(this.apiurl).pipe(pluck('results')).toPromise();
-  }
+  // getData() {
+  //   return this.http.get(this.apiurl).pipe(pluck('results')).toPromise();
+  // }
   getWarnData() {
     return this.http.get(this.apiurl).pipe(pluck('results'));
   }
@@ -24,7 +24,16 @@ export class ApiService {
     return this.http.get<Api[]>(URL).pipe(pluck('results'));
   }
 
-  getJsonData() {
-    return this.http.get<any>(this.url);
+  getAlbums() {
+    return this.http.get('https://jsonplaceholder.typicode.com/albums');
+  }
+  //
+
+  getUserData(): Observable<Api> {
+    return this.http.get<Api>(this.apiurl);
+  }
+
+  updateUser(user: Api): Observable<Api> {
+    return this.http.patch<Api>(`${this.apiurl}/${user.name}`, user);
   }
 }

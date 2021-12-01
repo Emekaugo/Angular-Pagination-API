@@ -4,10 +4,16 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ChangeDetectorRef } from '@angular/core';
 
-import { HttpErrorResponse } from '@angular/common/http';
-import { Api } from '../api';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Api, Api2 } from '../api';
 import { ApiService } from '../api.service';
 import { catchError, tap } from 'rxjs/operators';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ComponentType } from '@angular/cdk/portal';
+import { CreateRandomUserComponent } from '../create-random-user/create-random-user.component';
+import { EditRandomUserComponent } from '../edit-random-user/edit-random-user.component';
 
 @Component({
   selector: 'app-random-users-table',
@@ -16,82 +22,119 @@ import { catchError, tap } from 'rxjs/operators';
 })
 export class RandomUsersTableComponent implements OnInit {
   private subs = new Subscription();
-  displayedColumns = ['name', 'picture', 'phone', 'email', 'location'];
-  dataSourceUser: any;
-  pageReady$!: Observable<any>;
-
-  showData: boolean = false;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-
+  userAddform!: FormGroup;
   private dataArray: any;
-  data: Api[] = [];
+  displayedColumns = [
+    'name',
+    'picture',
+    'phone',
+    'email',
+    'location',
+    'actions',
+  ];
+  columnsToDisplay: string[] = this.displayedColumns.slice();
 
-  userList: any;
+  public dataSource!: MatTableDataSource<Api>;
 
-  constructor(private apiService: ApiService) {
-    // this.apiService.getRandomUsers().subscribe((x) => {
-    //   this.data = x;
-    //   console.log(this.data);
-    //   console.warn(x);
-    // });
+  @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<Api>;
+
+  name!: string;
+  phone?: number;
+  picture: any;
+  email!: string;
+  location!: string;
+
+  constructor(
+    private apiService: ApiService,
+    public dialog: MatDialog,
+    private fb: FormBuilder
+  ) {
+    this.userAddform = this.fb.group({
+      fullName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      phoneNumber: ['', [Validators.required]],
+      location: ['', [Validators.required]],
+    });
   }
 
   ngOnInit() {
-    this.pageReady$ = this.apiService.getRandomUsers().pipe(
-      tap((result) => {
-        if (!result) {
-          return;
+    this.subs.add(
+      this.apiService.getRandomUsers().subscribe(
+        (res) => {
+          console.log(res);
+          this.dataArray = res;
+          this.dataSource = new MatTableDataSource<Api>(this.dataArray);
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        },
+        (err: HttpErrorResponse) => {
+          console.log(err);
         }
-        console.log('result', result);
-        this.dataArray = result;
-        this.dataSourceUser = this.dataArray;
-        this.dataSourceUser.paginator = this.paginator;
-        this.dataSourceUser.sort = this.sort;
-      }),
-      catchError((err: HttpErrorResponse) => {
-        console.log(err);
-        return of(null);
-      })
+      )
     );
-
-    // this.subs.add(
-    //   this.apiService.getRandomUsers().subscribe(
-    //     (results) => {
-    //       if (!results) {
-    //         return;
-    //       }
-    //       console.log(results);
-    //       this.dataArray = results;
-    //       this.dataSourceUser = this.dataArray;
-    //       this.dataSourceUser.paginator = this.paginator;
-    //       this.dataSourceUser.sort = this.sort;
-    //     },
-    //     (err: HttpErrorResponse) => {
-    //       console.log(err);
-    //     }
-    //   )
-    // );
-    // this.getUserList();
   }
 
-  // ngAfterViewInit() {
-  //   this.dataSourceUser.paginator = this.paginator;
-  //   this.dataSourceUser.sort = this.sort;
-  // }
+  ngOnDestroy() {
+    if (this.subs) {
+      this.subs.unsubscribe();
+    }
+  }
 
-  // ngOnDestroy() {
-  //   if (this.subs) {
-  //     this.subs.unsubscribe();
-  //   }
-  // }
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
 
-  // getUserList() {
-  //   this.apiService.getWarnData().subscribe((result) => {
-  //     console.log(result);
-  //     this.userList = result;
-  //   });
+  openCreateRandomUser() {
+    const dialogRef = this.dialog.open(CreateRandomUserComponent, {
+      width: '250px',
+    });
 
-  //   console.log(this.userList);
-  // }
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The dialog was closed');
+    });
+  }
+
+  openEditRandomUser(action: any, obj: any) {
+    obj.action = action;
+    const dialogRef = this.dialog.open(EditRandomUserComponent, {
+      width: '250px',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result.event == 'Add') {
+        this.addRowData(result.data);
+      } else if (result.event == 'Update') {
+        this.updateRowData(result.data);
+      }
+      console.log('The dialog was closed');
+    });
+  }
+
+  addRowData(row_obj: { name: any }) {
+    var d = new Date();
+    this.dataArray.push({
+      id: d.getTime(),
+      name: row_obj.name,
+    });
+    this.table.renderRows();
+  }
+  updateRowData(row_obj: { id: any; name: any }) {
+    this.dataArray = this.dataArray.filter(
+      (value: { id: any; name: any }, key: any) => {
+        if (value.id == row_obj.id) {
+          value.name = row_obj.name;
+        }
+        return true;
+      }
+    );
+  }
+
+  delete(index: number) {
+    console.log(index);
+    this.dataSource.data.splice(index, 1);
+    this.dataSource.filter = '';
+  }
 }

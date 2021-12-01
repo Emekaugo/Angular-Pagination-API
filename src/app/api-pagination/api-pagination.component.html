@@ -111,7 +111,12 @@
         >
           <span>Name</span>
         </th>
-        <td mat-cell *matCellDef="let item" class="table-cell px-3">
+        <td
+          ngFor="orderBy:key:reverse"
+          mat-cell
+          *matCellDef="let item"
+          class="table-cell px-3"
+        >
           {{ item?.name?.first }}
         </td>
       </ng-container>

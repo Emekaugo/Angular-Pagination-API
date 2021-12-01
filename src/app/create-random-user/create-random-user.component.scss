@@ -1,0 +1,46 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+
+  .close-button {
+    float: right;
+    top: -24px;
+    right: -24px;
+    outline: none !important;
+    background: #fff;
+    border: 0;
+  }
+
+  .modal-title {
+    display: grid;
+    grid-template-columns: 1fr repeat(1, auto) 1fr;
+    grid-column-gap: 5px;
+    justify-items: center;
+    .title {
+      grid-column-start: 2;
+      font-weight: 800;
+      color: #4f4f4f;
+      font-size: 1.25rem;
+    }
+  }
+
+  p {
+    &.close-button {
+      background: transparent;
+      color: #000;
+      display: flex;
+      justify-content: flex-end;
+      cursor: pointer;
+    }
+  }
+}
+::ng-deep {
+  .edit-profile-modal {
+    .mat-dialog-container {
+      margin: 0.5rem;
+      border-radius: 1rem !important;
+      min-height: fit-content;
+    }
+  }
+}
