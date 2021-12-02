@@ -43,14 +43,14 @@
         picture
       </th>
       <td mat-cell *matCellDef="let item" class="table-img left-text">
-        <span>
+        <div>
           <img
             [src]="item?.picture?.large"
             alt="picture of {{ item?.name?.first }}"
             width="50"
             height="auto"
           />
-        </span>
+        </div>
       </td>
     </ng-container>
 

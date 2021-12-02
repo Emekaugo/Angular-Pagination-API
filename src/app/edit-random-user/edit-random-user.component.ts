@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription, of } from 'rxjs';
+import { ApiService } from '../api.service';
 import { CreateRandomUserComponent } from '../create-random-user/create-random-user.component';
 
 @Component({
@@ -21,7 +22,8 @@ export class EditRandomUserComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<EditRandomUserComponent>,
     @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private apiService: ApiService
   ) {
     console.log(data);
     this.local_data = { ...data };
@@ -36,6 +38,7 @@ export class EditRandomUserComponent implements OnInit {
       location: ['', [Validators.required]],
     });
   }
+
   closeModal() {
     this.dialogRef.close();
   }
@@ -50,12 +53,13 @@ export class EditRandomUserComponent implements OnInit {
     }
     this.dialogRef.close({ event: this.action, data: this.local_data });
   }
+  //
 
-  createNewUser(user: any) {
-    return of(true);
+  doAction() {
+    this.dialogRef.close({ event: this.action, data: this.local_data });
   }
 
-  updateUserRecord(user: any) {
-    return of(true);
+  closeDialog() {
+    this.dialogRef.close({ event: 'Cancel' });
   }
 }

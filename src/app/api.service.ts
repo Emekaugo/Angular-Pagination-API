@@ -32,8 +32,4 @@ export class ApiService {
   getUserData(): Observable<Api> {
     return this.http.get<Api>(this.apiurl);
   }
-
-  updateUser(user: Api): Observable<Api> {
-    return this.http.patch<Api>(`${this.apiurl}/${user.name}`, user);
-  }
 }
