@@ -46,7 +46,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ApiPaginationComponent } from './api-pagination/api-pagination.component';
+
 import { ApiService } from './api.service';
 import { RandomUsersTableComponent } from './random-users-table/random-users-table.component';
 
@@ -56,7 +56,7 @@ import { EditRandomUserComponent } from './edit-random-user/edit-random-user.com
 @NgModule({
   declarations: [
     AppComponent,
-    ApiPaginationComponent,
+
     RandomUsersTableComponent,
 
     CreateRandomUserComponent,

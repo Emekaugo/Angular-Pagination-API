@@ -4,7 +4,12 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ChangeDetectorRef } from '@angular/core';
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpEventType,
+  HttpResponse,
+} from '@angular/common/http';
 import { Api, Api2 } from '../api';
 import { ApiService } from '../api.service';
 import { catchError, tap } from 'rxjs/operators';
@@ -14,6 +19,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ComponentType } from '@angular/cdk/portal';
 import { CreateRandomUserComponent } from '../create-random-user/create-random-user.component';
 import { EditRandomUserComponent } from '../edit-random-user/edit-random-user.component';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ImageUploadService } from '../image-upload.service';
 
 @Component({
   selector: 'app-random-users-table',
@@ -38,7 +45,7 @@ export class RandomUsersTableComponent implements OnInit {
 
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<Api>;
+  @ViewChild(MatTable, { static: true }) table!: MatTable<Api>;
 
   name!: string;
   phone?: number;
@@ -49,15 +56,11 @@ export class RandomUsersTableComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     public dialog: MatDialog,
-    private fb: FormBuilder
-  ) {
-    this.userAddform = this.fb.group({
-      fullName: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      phoneNumber: ['', [Validators.required]],
-      location: ['', [Validators.required]],
-    });
-  }
+    private fb: FormBuilder,
+    private cd: ChangeDetectorRef,
+    public _d: DomSanitizer,
+    private uploadService: ImageUploadService
+  ) {}
 
   ngOnInit() {
     this.subs.add(
@@ -91,10 +94,6 @@ export class RandomUsersTableComponent implements OnInit {
     const dialogRef = this.dialog.open(CreateRandomUserComponent, {
       width: '250px',
     });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
-    });
   }
 
   openEditRandomUser(action: any, obj: any) {
@@ -108,6 +107,8 @@ export class RandomUsersTableComponent implements OnInit {
         this.addRowData(result.data);
       } else if (result.event == 'Update') {
         this.updateRowData(result.data);
+      } else if (result.event == 'Delete') {
+        this.delete(result.data);
       }
       console.log('The dialog was closed');
     });
@@ -121,10 +122,10 @@ export class RandomUsersTableComponent implements OnInit {
     });
     this.table.renderRows();
   }
-  updateRowData(row_obj: { id: any; name: any }) {
+  updateRowData(row_obj: { email: any; name: any }) {
     this.dataArray = this.dataArray.filter(
-      (value: { id: any; name: any }, key: any) => {
-        if (value.id == row_obj.id) {
+      (value: { email: any; name: any }, key: any) => {
+        if (value.email == row_obj.email) {
           value.name = row_obj.name;
         }
         return true;
